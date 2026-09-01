@@ -638,27 +638,34 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
   });
 });
 
-/* ---------- Config storage (personal, not shared) ---------- */
+/* ---------- Config (hardcoded so it's connected for every visitor) ---------- */
+const DEFAULT_CONFIG = {
+  url: 'https://tvbqsyforrhnwjhfpvup.supabase.co',
+  key: 'sb_publishable_ZTC9zaH853I1XfyAd69sNw_SdsgEYZJ'
+};
+
 async function loadConfig(){
   try{
-    const res = await window.storage.get('supabase-config', false);
-    if(res && res.value){
-      config = JSON.parse(res.value);
+    const saved = localStorage.getItem('supabase-config');
+    if(saved){
+      config = JSON.parse(saved);
+    }else{
+      config = DEFAULT_CONFIG;
     }
   }catch(e){
-    config = null;
+    config = DEFAULT_CONFIG;
   }
   updateStatus();
 }
 
 async function saveConfig(url, key){
   config = {url: url.replace(/\/+$/,''), key};
-  await window.storage.set('supabase-config', JSON.stringify(config), false);
+  try{ localStorage.setItem('supabase-config', JSON.stringify(config)); }catch(e){}
   updateStatus();
 }
 
 async function clearConfig(){
-  try{ await window.storage.delete('supabase-config', false); }catch(e){}
+  try{ localStorage.setItem('supabase-config', JSON.stringify({url:'',key:''})); }catch(e){}
   config = null;
   products = [];
   sales = [];
